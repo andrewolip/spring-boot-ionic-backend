@@ -1,7 +1,9 @@
 package com.andy.cursomc;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Date;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -13,6 +15,7 @@ import com.andy.cursomc.domain.Cidade;
 import com.andy.cursomc.domain.Cliente;
 import com.andy.cursomc.domain.Endereco;
 import com.andy.cursomc.domain.Estado;
+import com.andy.cursomc.domain.ItemPedido;
 import com.andy.cursomc.domain.Pagamento;
 import com.andy.cursomc.domain.PagamentoComBoleto;
 import com.andy.cursomc.domain.PagamentoComCartao;
@@ -25,6 +28,7 @@ import com.andy.cursomc.repositories.CidadeRepository;
 import com.andy.cursomc.repositories.ClienteRepository;
 import com.andy.cursomc.repositories.EnderecoRepository;
 import com.andy.cursomc.repositories.EstadoRepository;
+import com.andy.cursomc.repositories.ItemPedidoRepository;
 import com.andy.cursomc.repositories.PagamentoRepository;
 import com.andy.cursomc.repositories.PedidoRepository;
 import com.andy.cursomc.repositories.ProdutoRepository;
@@ -56,8 +60,23 @@ public class CursomcApplication implements CommandLineRunner {
 	@Autowired
 	private PagamentoRepository pagamentoRepository;
 	
+	@Autowired
+	private ItemPedidoRepository itemPedidoRepository;
+	
 	public static void main(String[] args) {
 		SpringApplication.run(CursomcApplication.class, args);
+	}
+	
+	public static Date formatDate(Date date) {
+		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+		String dateText = sdf.format(date);
+		Date dateFormated = null;
+		try {
+			 sdf.parse(dateText);
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		return dateFormated;
 	}
 
 	@Override
@@ -118,6 +137,19 @@ public class CursomcApplication implements CommandLineRunner {
 		
 		pedidoRepository.save(Arrays.asList(ped1, ped2));
 		pagamentoRepository.save(Arrays.asList(pagto1, pagto2));
+		
+		ItemPedido ip1 = new ItemPedido(ped1, p1, 0.00, 1, 2000.00);
+		ItemPedido ip2 = new ItemPedido(ped1, p3, 0.00, 2, 80.00);
+		ItemPedido ip3 = new ItemPedido(ped2, p2, 100.00, 1, 800.00);
+		
+		ped1.getItens().addAll(Arrays.asList(ip1, ip2));
+		ped2.getItens().addAll(Arrays.asList(ip3));
+		
+		p1.getItens().addAll(Arrays.asList(ip1));
+		p2.getItens().addAll(Arrays.asList(ip3));
+		p3.getItens().addAll(Arrays.asList(ip2));
+		
+		itemPedidoRepository.save(Arrays.asList(ip1, ip2, ip3));
 		
 	}
 }
